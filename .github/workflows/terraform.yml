@@ -1,0 +1,53 @@
+name: 🚀 Nexus SensorFlow — Terraform CI/CD
+
+on:
+  pull_request:
+    branches: [main, stg]
+  push:
+    branches: [main, stg, develop]
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+env:
+  AWS_REGION: eu-central-1
+
+jobs:
+  terraform:
+    name: Terraform [${{ matrix.environment }}]
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+          - environment: dev
+            tf_dir: ./envs/dev
+          - environment: stg
+            tf_dir: ./envs/stg
+          - environment: prod
+            tf_dir: ./envs/prod
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔑 Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/nexus-sensorflow-github-role
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: ⚙️ Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.12.2"
+
+      - name: 🔧 Terraform Init
+        run: terraform init
+        working-directory: ${{ matrix.tf_dir }}
+
+      - name: 📋 Terraform Plan
+        run: terraform plan -no-color
+        working-directory: ${{ matrix.tf_dir }}
