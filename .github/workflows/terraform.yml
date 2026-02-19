@@ -51,3 +51,21 @@ jobs:
       - name: 📋 Terraform Plan
         run: terraform plan -no-color
         working-directory: ${{ matrix.tf_dir }}
+        - name: 💬 Post Plan as PR Comment
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync('${{ matrix.tf_dir }}/plan_output.txt', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `### 📋 Terraform Plan — \`${{ matrix.environment }}\`\n\n<details><summary>Expand plan</summary>\n\n\`\`\`terraform\n${plan.substring(0, 60000)}\n\`\`\`\n</details>`
+            });
+
+      - name: 🚀 Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve tfplan
+        working-directory: ${{ matrix.tf_dir }}
