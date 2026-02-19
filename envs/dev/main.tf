@@ -21,6 +21,7 @@ provider "aws" {
   region = var.aws_region
 }
 
+# ── S3 ───────────────────────────────────────
 resource "aws_s3_bucket" "sensor_data" {
   bucket        = "${var.project}-${var.environment}-sensor-data"
   force_destroy = true
@@ -29,7 +30,6 @@ resource "aws_s3_bucket" "sensor_data" {
     Project     = var.project
     Environment = var.environment
     ManagedBy   = "Terraform"
-    UpdateBy    = "GitHub-Actions RadarX"
   }
 }
 
@@ -55,4 +55,26 @@ resource "aws_s3_bucket_public_access_block" "sensor_data" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+}
+
+# ── Networking ───────────────────────────────
+module "networking" {
+  source          = "../../terraform/modules/networking"
+  project         = var.project
+  environment     = var.environment
+  aws_region      = var.aws_region
+  vpc_cidr        = var.vpc_cidr
+  public_subnet_a = var.public_subnet_a
+  public_subnet_b = var.public_subnet_b
+}
+
+# ── Compute ──────────────────────────────────
+module "compute" {
+  source         = "../../terraform/modules/compute"
+  project        = var.project
+  environment    = var.environment
+  instance_type  = var.ec2_instance_type
+  vpc_id         = module.networking.vpc_id
+  subnet_id      = module.networking.public_subnet_a
+  raw_bucket_arn = aws_s3_bucket.sensor_data.arn
 }
