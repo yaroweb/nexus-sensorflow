@@ -2,9 +2,9 @@ name: 🚀 Nexus SensorFlow — Terraform CI/CD
 
 on:
   pull_request:
-    branches: [main, stg]
+    branches: [main]
   push:
-    branches: [main, stg, develop]
+    branches: [main]
 
 permissions:
   id-token: write
