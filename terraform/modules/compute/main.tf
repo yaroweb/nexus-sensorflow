@@ -59,6 +59,12 @@ resource "aws_iam_role_policy" "ec2_s3" {
   })
 }
 
+
+# ← NEW: SSM policy so we can connect without SSH
+resource "aws_iam_role_policy_attachment" "ssm" {
+  role       = aws_iam_role.ec2.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  
 resource "aws_iam_instance_profile" "ec2" {
   name = "${var.project}-${var.environment}-ec2-profile"
   role = aws_iam_role.ec2.name
