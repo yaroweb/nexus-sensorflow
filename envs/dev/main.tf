@@ -29,6 +29,7 @@ resource "aws_s3_bucket" "sensor_data" {
     Project     = var.project
     Environment = var.environment
     ManagedBy   = "Terraform"
+    UpdateBy    = "GitHub-Actions RadarX"
   }
 }
 
