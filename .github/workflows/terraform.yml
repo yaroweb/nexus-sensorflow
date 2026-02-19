@@ -2,9 +2,9 @@ name: 🚀 Nexus SensorFlow — Terraform CI/CD
 
 on:
   pull_request:
-    branches: [main]  # triggers on ANY pull request to main
+    branches: [main]
   push:
-    branches: [main] #triggers on merge to main
+    branches: [main]
 
 permissions:
   id-token: write
@@ -49,9 +49,11 @@ jobs:
         working-directory: ${{ matrix.tf_dir }}
 
       - name: 📋 Terraform Plan
-        run: terraform plan -no-color
+        id: plan
+        run: terraform plan -out=tfplan -no-color 2>&1 | tee plan_output.txt
         working-directory: ${{ matrix.tf_dir }}
-        - name: 💬 Post Plan as PR Comment
+
+      - name: 💬 Post Plan on PR
         uses: actions/github-script@v7
         if: github.event_name == 'pull_request'
         with:
