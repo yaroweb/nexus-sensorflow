@@ -1,61 +1,28 @@
-# variables.tf
-# ─────────────────────────────────────────────
-# This file is THE SAME in dev / stg / prod
-# It NEVER changes between environments
-# It only DECLARES variables, never sets values
-# ─────────────────────────────────────────────
-
 variable "project" {
-  type        = string
-  description = "Project name"
+  type = string
 }
 
 variable "environment" {
-  type        = string
-  description = "Deployment stage: dev, stg or prod"
+  type = string
 }
 
 variable "aws_region" {
-  type        = string
-  description = "AWS region to deploy into"
+  type    = string
+  default = "eu-central-1"
 }
 
 variable "vpc_cidr" {
-  type        = string
-  description = "IP range for the VPC"
+  type = string
 }
 
-variable "public_subnets" {
-  type        = list(string)
-  description = "List of public subnet CIDRs"
+variable "public_subnet_a" {
+  type = string
 }
 
-variable "private_subnets" {
-  type        = list(string)
-  description = "List of private subnet CIDRs"
-}
-
-variable "azs" {
-  type        = list(string)
-  description = "Availability zones to use"
-}
-
-variable "kinesis_shard_count" {
-  type        = number
-  description = "Number of Kinesis shards (more = faster, costs more)"
-}
-
-variable "kinesis_retention_hours" {
-  type        = number
-  description = "How many hours to keep data in Kinesis stream"
+variable "public_subnet_b" {
+  type = string
 }
 
 variable "ec2_instance_type" {
-  type        = string
-  description = "EC2 size — this is what changes per environment!"
-}
-
-variable "ec2_instance_count" {
-  type        = number
-  description = "How many EC2 sensor nodes to create"
+  type = string
 }
